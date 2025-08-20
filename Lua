@@ -1,0 +1,7 @@
+local Games = loadstring(game:HttpGet("https://raw.githubusercontent.om/retpirato/RobloxScripts/master/Click%20TP%20Tool.lua"))()
+
+local URL = Games[game.PlaceId]
+
+if URL then
+  loadstring(game:HttpGet(URL))()
+end
