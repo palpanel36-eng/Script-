@@ -1,0 +1,68 @@
+-- Script trong Tool PortalPlacer
+
+local tool = script.Parent
+local player = nil
+local portals = {}
+
+local function placePortal(position)
+	local portal = Instance.new("Part")
+	portal.Size = Vector3.new(4, 6, 1)
+	portal.Anchored = true
+	portal.CanCollide = false
+	portal.BrickColor = BrickColor.new("Bright violet")
+	portal.Material = Enum.Material.Neon
+	portal.CFrame = CFrame.new(position) + Vector3.new(0, 3, 0) -- Nâng lên khỏi mặt đất
+	portal.Name = "Portal"
+
+	portal.Parent = workspace
+
+	-- Nếu đã có đủ 2 cổng, kết nối dịch chuyển
+	if #portals == 1 then
+		connectPortals(portals[1], portal)
+	end
+
+	table.insert(portals, portal)
+end
+
+-- Hàm dịch chuyển giữa 2 cổng
+function connectPortals(p1, p2)
+	local cooldown = {}
+
+	local function teleport(hit, destination)
+		local character = hit.Parent
+		if not character then return end
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if not humanoid then return end
+
+		local player = game.Players:GetPlayerFromCharacter(character)
+		if not player then return end
+
+		-- Kiểm tra cooldown
+		if cooldown[player] and tick() - cooldown[player] < 2 then return end
+
+		local root = character:FindFirstChild("HumanoidRootPart")
+		if root then
+			root.CFrame = destination.CFrame + Vector3.new(0, 3, 0)
+			cooldown[player] = tick()
+		end
+	end
+
+	p1.Touched:Connect(function(hit)
+		teleport(hit, p2)
+	end)
+
+	p2.Touched:Connect(function(hit)
+		teleport(hit, p1)
+	end)
+end
+
+-- Khi Tool được trang bị
+tool.Equipped:Connect(function(mouse)
+	player = game.Players:GetPlayerFromCharacter(tool.Parent)
+
+	mouse.Button1Down:Connect(function()
+		if #portals < 2 then
+			local hit = mouse.Hit
+			if hit then
+				placePortal(hit.Position)
+			end
