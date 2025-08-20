@@ -1,0 +1,71 @@
+📌 Tạo GUI Menu
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "HackMenu"
+
+-- 📌 Tạo Frame
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 200, 0, 120)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+
+-- 📌 Tạo nút Speed Hack
+local speedButton = Instance.new("TextButton", frame)
+speedButton.Size = UDim2.new(1, -20, 0, 40)
+speedButton.Position = UDim2.new(0, 10, 0, 10)
+speedButton.Text = "⚡ Tăng Tốc"
+speedButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+speedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedButton.Font = Enum.Font.SourceSansBold
+speedButton.TextSize = 18
+
+-- 📌 Tạo nút Fly Hack
+local flyButton = Instance.new("TextButton", frame)
+flyButton.Size = UDim2.new(1, -20, 0, 40)
+flyButton.Position = UDim2.new(0, 10, 0, 60)
+flyButton.Text = "🕊️ Bay"
+flyButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+flyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+flyButton.Font = Enum.Font.SourceSansBold
+flyButton.TextSize = 18
+
+-- 📌 Speed Hack Toggle
+local speedOn = false
+local humanoid = player.Character:WaitForChild("Humanoid")
+
+speedButton.MouseButton1Click:Connect(function()
+    speedOn = not speedOn
+    humanoid.WalkSpeed = speedOn and 100 or 16
+    speedButton.Text = speedOn and "⚡ Tốc Độ: BẬT" or "⚡ Tốc Độ: TẮT"
+end)
+
+-- 📌 Fly Hack Toggle
+local flying = false
+local HRP = player.Character:WaitForChild("HumanoidRootPart")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local flyDir = Vector3.new()
+
+flyButton.MouseButton1Click:Connect(function()
+    flying = not flying
+    HRP.Anchored = flying
+    flyButton.Text = flying and "🕊️ Bay: BẬT" or "🕊️ Bay: TẮT"
+end)
+
+RunService.RenderStepped:Connect(function()
+    if flying then
+        local move = Vector3.new()
+        if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + Vector3.new(0, 0, -1) end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then move = move + Vector3.new(0, 0, 1) end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then move = move + Vector3.new(-1, 0, 0) end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + Vector3.new(1, 0, 0) end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0, 1, 0) end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move = move + Vector3.new(0, -1, 0) end
+
+        HRP.CFrame = HRP.CFrame + move.Unit * 2
+    end
+end)
